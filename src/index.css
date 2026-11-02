@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-yellow: #F8CB46;
+  --color-brand-yellow-light: #FFF9E6;
+  --color-brand-yellow-dark: #E4B528;
+  --color-brand-green: #0C831F;
+  --color-brand-green-hover: #086918;
+  --color-brand-green-light: #EAF7ED;
+  --color-surface: #FFFFFF;
+  --color-surface-off: #F7F7F7;
+  --color-text-primary: #1F1F1F;
+  --color-text-secondary: #6B6B6B;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b5b5b5;
+}
+
+/* Hide scrollbar for clean horizontal product scrolls while keeping scrollability */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Shimmer animation for image loading */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(240, 240, 240, 0.8) 0%,
+    rgba(250, 250, 250, 0.9) 50%,
+    rgba(240, 240, 240, 0.8) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.5s infinite;
+}
+
+@keyframes skeleton-wave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Subtle glow effects */
+.glow-yellow {
+  box-shadow: 0 8px 30px rgba(248, 203, 70, 0.35);
+}
+
+.glow-green {
+  box-shadow: 0 8px 24px rgba(12, 131, 31, 0.3);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
