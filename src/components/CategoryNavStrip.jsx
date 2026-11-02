@@ -1,7 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { CATEGORIES } from '../data/products';
-import { Sparkles, SlidersHorizontal, Check } from 'lucide-react';
 
 export default function CategoryNavStrip({
   selectedCategory,
@@ -18,17 +16,17 @@ export default function CategoryNavStrip({
   ];
 
   return (
-    <div className="sticky top-[61px] sm:top-[69px] z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs py-2.5 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
+    <div className="sticky top-[88px] md:top-[65px] z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs py-2 sm:py-2.5 transition-all">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-3">
           {/* Category Chips Scroll Row */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
             <button
               onClick={() => onSelectCategory(null)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
                 selectedCategory === null
-                  ? 'bg-brand-green text-white border-brand-green shadow-xs'
-                  : 'bg-surface-off text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-100'
+                  ? 'bg-brand-green text-white border-brand-green shadow-2xs'
+                  : 'bg-surface-off text-stone-700 border-stone-200 hover:border-stone-300'
               }`}
             >
               <span>🛍️</span>
@@ -41,10 +39,10 @@ export default function CategoryNavStrip({
                 <button
                   key={cat.id}
                   onClick={() => onSelectCategory(cat.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1 sm:gap-1.5 ${
                     isSelected
-                      ? 'bg-brand-green text-white border-brand-green shadow-xs'
-                      : 'bg-surface-off text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-100'
+                      ? 'bg-brand-green text-white border-brand-green shadow-2xs'
+                      : 'bg-surface-off text-stone-700 border-stone-200 hover:border-stone-300'
                   }`}
                 >
                   <span>{cat.icon}</span>
@@ -78,4 +76,3 @@ export default function CategoryNavStrip({
     </div>
   );
 }
-

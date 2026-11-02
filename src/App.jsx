@@ -280,7 +280,7 @@ export default function App() {
       />
 
       {/* Main Content Sections */}
-      <main className="flex-1">
+      <main className={`flex-1 ${cartCount > 0 ? 'pb-24 sm:pb-0' : ''}`}>
         {/* Section 2: Clean Professional Hero (No Bouncing Floating Items) */}
         <Hero
           onShopNow={() => handleSelectCategory('fruits-veg')}
@@ -419,7 +419,7 @@ export default function App() {
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
-            className="fixed bottom-0 left-0 right-0 z-40 p-3 bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-xl sm:hidden"
+            className="fixed bottom-0 left-0 right-0 z-40 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-xl sm:hidden"
           >
             <button
               onClick={() => setIsCartOpen(true)}
