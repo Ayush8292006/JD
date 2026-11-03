@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useIsMobile from '../hooks/useIsMobile';
 import {
   X,
   Star,
@@ -20,18 +21,20 @@ export default function ProductDetailModal({
   onIncrement,
   onDecrement
 }) {
+  const isMobile = useIsMobile(); // phones: slide-up bottom sheet
   if (!isOpen || !product) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-sm">
+      <div onClick={(e) => e.target === e.currentTarget && onClose()} className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/65 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-stone-100 max-h-[88vh] flex flex-col"
+          exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 15 }}
+          transition={isMobile ? { type: 'spring', damping: 30, stiffness: 320 } : { duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white rounded-t-3xl md:rounded-3xl relative pb-[env(safe-area-inset-bottom)] md:pb-0 max-w-lg w-full overflow-hidden shadow-2xl border border-stone-100 max-h-[88vh] flex flex-col"
         >
+          <div className="md:hidden absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full bg-black/15 z-30" aria-hidden="true" />
           {/* Modal Header Bar */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-stone-100 bg-surface-off">
             <div className="flex items-center gap-2">

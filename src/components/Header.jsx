@@ -21,7 +21,8 @@ export default function Header({
   onOpenLogin,
   user,
   location,
-  onSelectProduct
+  onSelectProduct,
+  children
 }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -31,7 +32,7 @@ export default function Header({
   // Scroll detection for sticky header blur & shadow
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 15);
+      setIsScrolled(window.scrollY > 40);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -58,15 +59,56 @@ export default function Header({
     <header
       className={`sticky top-0 z-40 w-full transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm py-2 sm:py-2.5 border-b border-stone-100'
-          : 'bg-white py-2.5 sm:py-3.5 border-b border-stone-100/90'
+          ? 'bg-white/95 backdrop-blur-md shadow-sm'
+          : 'bg-gradient-to-b from-[#FFF1C2] via-[#FFF8E1] to-white md:bg-none md:bg-white'
       }`}
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        {/* ===== TOP ROW: Brand, Location & Actions ===== */}
-        <div className="flex items-center justify-between gap-2.5 sm:gap-6">
+        {/* ===== MOBILE APP BAR (phones only): collapses on scroll, search stays pinned ===== */}
+        <div
+          className={`md:hidden grid transition-all duration-300 ease-out ${
+            isScrolled ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="flex items-center justify-between gap-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1">
+              <button onClick={onOpenLocation} className="min-w-0 text-left active:opacity-70">
+                <p className="text-[10px] font-black uppercase tracking-wider text-stone-600 leading-none">
+                  JD Bazar in
+                </p>
+                <p className="text-[22px] font-black text-content-primary leading-tight tracking-tight">
+                  {(location?.time || '10 mins').replace(/mins?\b/i, 'minutes')}
+                </p>
+                <p className="flex items-center gap-1 text-xs font-semibold text-stone-700 min-w-0">
+                  <MapPin className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
+                  <span className="truncate max-w-[230px]">{location?.name || 'Connaught Place, New Delhi'}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-stone-500 flex-shrink-0" />
+                </p>
+              </button>
+
+              <button
+                onClick={onOpenLogin}
+                className="w-10 h-10 rounded-full bg-white border border-stone-200 shadow-2xs flex items-center justify-center flex-shrink-0 overflow-hidden active:scale-95 transition-transform"
+                aria-label={user ? 'Your account' : 'Login'}
+              >
+                {user ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-stone-700" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== DESKTOP / TABLET TOP ROW: Brand, Location, Search & Actions ===== */}
+        <div
+          className={`hidden md:flex items-center justify-between gap-4 lg:gap-6 transition-all duration-300 ${
+            isScrolled ? 'py-2.5' : 'py-3.5'
+          }`}
+        >
           {/* Brand Logo & Location */}
-          <div className="flex items-center gap-3 sm:gap-6 flex-shrink-0 min-w-0">
+          <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0 min-w-0">
             <a href="#" className="flex-shrink-0" aria-label="JD Bazar Home">
               <Logo size="default" showTagline={false} />
             </a>
@@ -86,26 +128,10 @@ export default function Header({
               </span>
             </button>
 
-            {/* Delivery Location Pill - Mobile (Compact Blinkit Style) */}
-            <button
-              onClick={onOpenLocation}
-              className="flex md:hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-off border border-stone-200/80 text-left min-w-0 max-w-[160px] xs:max-w-[190px]"
-            >
-              <MapPin className="w-3 h-3 text-brand-green flex-shrink-0" />
-              <div className="truncate text-left leading-tight">
-                <p className="text-[10px] font-black text-brand-green uppercase leading-none">
-                  {location?.time || "10 MINS"}
-                </p>
-                <p className="text-[11px] font-bold text-content-primary truncate">
-                  {location?.name?.split(',')[0] || "Connaught Place"}
-                </p>
-              </div>
-              <ChevronDown className="w-3 h-3 text-stone-400 flex-shrink-0 ml-0.5" />
-            </button>
           </div>
 
           {/* Search Bar - Desktop Only (on mobile it sits in dedicated full-width Row 2) */}
-          <div className="hidden md:block flex-1 max-w-2xl relative">
+          <div className="flex-1 max-w-2xl relative min-w-0">
             <div
               className={`flex items-center bg-surface-off rounded-2xl border transition-all duration-200 px-3.5 py-2.5 ${
                 isSearchFocused
@@ -287,12 +313,12 @@ export default function Header({
         </div>
 
         {/* ===== ROW 2: Mobile Search Bar (Full Width like Blinkit / Zepto App) ===== */}
-        <div className="block md:hidden mt-2.5 relative">
+        <div className={`block md:hidden relative pb-2.5 ${isScrolled ? 'pt-[max(0.625rem,env(safe-area-inset-top))]' : 'pt-2'}`}>
           <div
-            className={`flex items-center bg-surface-off rounded-2xl border transition-all duration-200 px-3.5 py-2.5 ${
+            className={`flex items-center bg-white rounded-xl border transition-all duration-200 px-3.5 py-3 shadow-2xs ${
               isSearchFocused
-                ? 'border-brand-green ring-2 ring-brand-green/20 bg-white shadow-xs'
-                : 'border-stone-200/90'
+                ? 'border-brand-green ring-2 ring-brand-green/20 shadow-xs'
+                : 'border-stone-200'
             }`}
           >
             <Search className={`w-4 h-4 mr-2.5 flex-shrink-0 transition-colors ${
@@ -301,19 +327,21 @@ export default function Header({
 
             <div className="relative flex-1 overflow-hidden">
               <input
-                type="text"
+                id="mobile-search-input"
+                type="search"
+                enterKeyHint="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                className="w-full bg-transparent text-xs font-medium text-content-primary focus:outline-none placeholder:text-transparent"
+                className="w-full bg-transparent text-base leading-5 font-medium text-content-primary focus:outline-none placeholder:text-transparent [&::-webkit-search-cancel-button]:hidden"
                 placeholder="Search grocery..."
               />
 
               {/* Animated Rotating Placeholder */}
               {searchQuery === '' && (
                 <div className="absolute inset-0 pointer-events-none flex items-center">
-                  <span className="text-xs text-content-secondary select-none">
+                  <span className="text-sm text-content-secondary select-none">
                     Search "
                   </span>
                   <AnimatePresence mode="wait">
@@ -323,12 +351,12 @@ export default function Header({
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: -12, opacity: 0 }}
                       transition={{ duration: 0.3, ease: 'easeOut' }}
-                      className="text-xs font-bold text-stone-700 select-none inline-block ml-0.5"
+                      className="text-sm font-bold text-stone-700 select-none inline-block ml-0.5"
                     >
                       {POPULAR_SEARCH_TERMS[placeholderIndex]}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="text-xs text-content-secondary select-none">
+                  <span className="text-sm text-content-secondary select-none">
                     "
                   </span>
                 </div>
@@ -392,6 +420,9 @@ export default function Header({
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Category chips strip lives inside the sticky header so it never mis-aligns */}
+      {children}
     </header>
   );
 }

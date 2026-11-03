@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useIsMobile from '../hooks/useIsMobile';
 import confetti from 'canvas-confetti';
 import {
   CheckCircle2,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function OrderSuccessModal({ isOpen, onClose, orderData, onClearCart }) {
+  const isMobile = useIsMobile(); // phones: slide-up bottom sheet
   const [timeLeft, setTimeLeft] = useState(580); // ~9:40 mins in seconds
   const [activeStep, setActiveStep] = useState(2); // 1 = Received, 2 = Packing, 3 = On Way, 4 = Delivered
 
@@ -74,13 +76,15 @@ export default function OrderSuccessModal({ isOpen, onClose, orderData, onClearC
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/65 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-stone-100 max-h-[90vh] flex flex-col"
+          exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 20 }}
+          transition={isMobile ? { type: 'spring', damping: 30, stiffness: 320 } : { duration: 0.2 }}
+          className="bg-white rounded-t-3xl md:rounded-3xl relative pb-[env(safe-area-inset-bottom)] md:pb-0 max-w-lg w-full overflow-hidden shadow-2xl border border-stone-100 max-h-[90vh] flex flex-col"
         >
+          <div className="md:hidden absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1.5 rounded-full bg-black/15 z-30" aria-hidden="true" />
           {/* Header Banner */}
           <div className="bg-gradient-to-br from-brand-yellow via-amber-300 to-amber-400 p-6 text-center relative flex-shrink-0">
             <button

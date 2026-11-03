@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from './ProductCard';
 
@@ -15,6 +15,10 @@ export default function ProductSection({
   sectionId
 }) {
   const scrollRef = useRef(null);
+  // Phones: "See all" expands the rail into a 2-column grid (like a category page in an app)
+  const [showAll, setShowAll] = useState(false);
+
+  if (!products || products.length === 0) return null;
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -24,14 +28,14 @@ export default function ProductSection({
   };
 
   return (
-    <section id={sectionId} className="py-5 sm:py-8 bg-white">
+    <section id={sectionId} className="py-4 sm:py-8 bg-white">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Section Heading & Controls */}
-        <div className="flex items-end justify-between mb-3 sm:mb-5">
-          <div>
+        <div className="flex items-end justify-between gap-3 mb-3 sm:mb-5">
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
               {icon && <span className="text-lg sm:text-2xl">{icon}</span>}
-              <h2 className="text-base sm:text-xl md:text-2xl font-black text-content-primary tracking-tight">
+              <h2 className="text-base sm:text-xl md:text-2xl font-black text-content-primary tracking-tight truncate">
                 {title}
               </h2>
             </div>
@@ -41,6 +45,15 @@ export default function ProductSection({
               </p>
             )}
           </div>
+
+          {/* Phones: See all / Show less */}
+          <button
+            onClick={() => setShowAll((v) => !v)}
+            className="sm:hidden flex-shrink-0 text-xs font-black text-brand-green flex items-center gap-0.5 active:opacity-60"
+          >
+            {showAll ? 'Show less' : `See all (${products.length})`}
+            <ChevronRight className={`w-3.5 h-3.5 transition-transform ${showAll ? '-rotate-90' : ''}`} />
+          </button>
 
           {/* Left/Right Scroll Arrow Buttons */}
           <div className="hidden sm:flex items-center gap-1.5">
@@ -64,13 +77,18 @@ export default function ProductSection({
         {/* Horizontal Scroll Row */}
         <div
           ref={scrollRef}
-          className="flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto no-scrollbar pb-2.5 pt-0.5 -mx-3 px-3 sm:mx-0 sm:px-0"
+          className={
+            showAll
+              ? 'grid grid-cols-2 gap-2.5 sm:flex sm:items-stretch sm:gap-4 sm:overflow-x-auto no-scrollbar pb-2.5 pt-0.5'
+              : 'flex items-stretch gap-2.5 sm:gap-4 overflow-x-auto no-scrollbar snap-x scroll-px-3 sm:snap-none pb-2.5 pt-0.5 -mx-3 px-3 sm:mx-0 sm:px-0'
+          }
         >
           {products.map((product) => {
             const quantity = cart[product.id]?.quantity || 0;
             return (
               <ProductCard
                 key={product.id}
+                variant={showAll ? 'grid' : 'rail'}
                 product={product}
                 quantity={quantity}
                 onAdd={onAddToCart}

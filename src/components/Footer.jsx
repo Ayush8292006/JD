@@ -5,7 +5,24 @@ import { CATEGORIES } from '../data/products';
 
 export default function Footer({ onSelectCategory }) {
   return (
-    <footer className="bg-surface-off border-t border-stone-200/80 pt-14 pb-8">
+    <>
+    {/* Phones: minimal app-style sign-off (the full website footer is for tablet / laptop) */}
+    <div className="md:hidden bg-surface-off px-4 pt-8 pb-6">
+      <p className="text-[32px] leading-[1.05] font-black tracking-tight text-stone-300">
+        Aapka apna bazar,<br />ab minutes mein
+        <Heart className="inline-block w-7 h-7 ml-1.5 -mt-1 text-red-400 fill-current" />
+      </p>
+      <p className="mt-4 text-[11px] font-semibold text-stone-400">
+        JD Bazar · jdbazar.in · support@jdbazar.in
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5 font-mono text-[10px] font-bold text-stone-500">
+        {['UPI', 'RuPay', 'VISA', 'Mastercard', 'COD'].map((m) => (
+          <span key={m} className="bg-white border border-stone-200 px-1.5 py-0.5 rounded">{m}</span>
+        ))}
+      </div>
+    </div>
+
+    <footer className="hidden md:block bg-surface-off border-t border-stone-200/80 pt-14 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-stone-200">
           {/* Brand Info */}
@@ -132,9 +149,9 @@ export default function Footer({ onSelectCategory }) {
 
         {/* Payment Methods & Bottom Bar */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-content-secondary">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <span>Accepted Payment Options:</span>
-            <div className="flex items-center gap-2 font-mono font-bold text-stone-700">
+            <div className="flex flex-wrap items-center justify-center gap-2 font-mono font-bold text-stone-700">
               <span className="bg-white border border-stone-200 px-2 py-0.5 rounded text-[10px]">UPI</span>
               <span className="bg-white border border-stone-200 px-2 py-0.5 rounded text-[10px]">RuPay</span>
               <span className="bg-white border border-stone-200 px-2 py-0.5 rounded text-[10px]">VISA</span>
@@ -144,7 +161,7 @@ export default function Footer({ onSelectCategory }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-1 text-center">
             <span>© 2026 JD Bazar (<a href="https://jdbazar.in" className="text-brand-green font-semibold hover:underline">jdbazar.in</a>). Crafted with</span>
             <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
             <span>for Indian homes.</span>
@@ -152,6 +169,7 @@ export default function Footer({ onSelectCategory }) {
         </div>
       </div>
     </footer>
+    </>
   );
 }
 

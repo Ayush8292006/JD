@@ -20,6 +20,40 @@ html {
   font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation; /* no 300ms tap delay / double-tap zoom on buttons */
+}
+
+/* Phones: feel like a native app */
+@media (max-width: 767px) {
+  html {
+    scroll-padding-top: 140px;
+  }
+  body {
+    overscroll-behavior-x: none;
+  }
+  button,
+  [role='button'] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Installed as an app (Add to Home Screen) */
+@media (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -37,6 +71,14 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #b5b5b5;
+}
+
+/* Phones: hide the desktop scrollbar (native apps don't show one) */
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 }
 
 /* Hide scrollbar for clean horizontal product scrolls while keeping scrollability */

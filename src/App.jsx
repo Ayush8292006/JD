@@ -19,6 +19,8 @@ import LoginModal from './components/LoginModal';
 import OrderSuccessModal from './components/OrderSuccessModal';
 import Toast from './components/Toast';
 import ScrollProgress from './components/ScrollProgress';
+import MobileBottomNav from './components/MobileBottomNav';
+import useIsMobile from './hooks/useIsMobile';
 import { PRODUCTS } from './data/products';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 
@@ -80,6 +82,10 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
 
+  // Mobile app bottom-tab state
+  const [activeTab, setActiveTab] = useState('home');
+  const isMobile = useIsMobile();
+
   // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('jd_bazar_cart', JSON.stringify(cart));
@@ -120,11 +126,14 @@ export default function App() {
         quantity: (prev[product.id]?.quantity || 0) + 1,
       },
     }));
-    showToast(
-      `Added to Cart!`,
-      `${product.name} (₹${product.price})`,
-      'cart'
-    );
+    // On phones the floating "View Basket" pill already confirms the add — no toast, like a real app
+    if (!isMobile) {
+      showToast(
+        `Added to Cart!`,
+        `${product.name} (₹${product.price})`,
+        'cart'
+      );
+    }
   };
 
   const handleIncrement = (productId) => {
@@ -186,6 +195,16 @@ export default function App() {
     setIsQuickViewOpen(true);
   };
 
+  // Scroll an element just below the sticky header (header height differs on phone / tablet / laptop)
+  const scrollToElement = (element) => {
+    const header = document.querySelector('header');
+    // On phones the header's location row collapses once scrolled, so measure the compact height
+    const isPhone = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+    const headerHeight = header ? header.offsetHeight - (isPhone && window.scrollY <= 40 ? 64 : 0) : 120;
+    const top = element.getBoundingClientRect().top + window.scrollY - headerHeight - 8;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  };
+
   // Smooth scroll to product category
   const handleSelectCategory = (categoryId) => {
     setSelectedCategory(categoryId);
@@ -193,22 +212,36 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    const element = document.getElementById(`section-${categoryId}`);
-    if (element) {
-      const offset = 120;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    } else {
-      const prodElem = document.getElementById('all-products');
-      if (prodElem) {
-        prodElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    // Categories that share a combined product row
+    const SECTION_FOR = {
+      'sweets-chocolates': 'snacks-munchies',
+      'cold-drinks': 'instant-food',
+      'tea-coffee': 'instant-food',
+      'personal-care': 'cleaning',
+      'baby-care': 'cleaning',
+    };
+    const element =
+      document.getElementById(`section-${categoryId}`) ||
+      document.getElementById(`section-${SECTION_FOR[categoryId]}`) ||
+      document.getElementById('all-products');
+    if (element) scrollToElement(element);
+  };
+
+  // Mobile bottom navigation
+  const handleTabChange = (tab) => {
+    if (tab === 'cart') return setIsCartOpen(true);
+    if (tab === 'account') return setIsLoginOpen(true);
+    setActiveTab(tab);
+    if (tab === 'home') {
+      setSelectedCategory(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'categories') {
+      const el = document.getElementById('categories');
+      if (el) scrollToElement(el);
+    } else if (tab === 'search') {
+      // focus synchronously (inside the tap) so the phone keyboard opens
+      document.getElementById('mobile-search-input')?.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -269,44 +302,54 @@ export default function App() {
         user={user}
         location={location}
         onSelectProduct={handleSelectProduct}
-      />
-
-      {/* Sticky Category Sub-Navigation Strip with Quick Filters */}
-      <CategoryNavStrip
-        selectedCategory={selectedCategory}
-        onSelectCategory={handleSelectCategory}
-        activeFilter={activeFilter}
-        onSelectFilter={(fil) => setActiveFilter(fil)}
-      />
-
-      {/* Main Content Sections */}
-      <main className={`flex-1 ${cartCount > 0 ? 'pb-24 sm:pb-0' : ''}`}>
-        {/* Section 2: Clean Professional Hero (No Bouncing Floating Items) */}
-        <Hero
-          onShopNow={() => handleSelectCategory('fruits-veg')}
+      >
+        {/* Sticky Category Sub-Navigation Strip with Quick Filters (rendered inside the sticky header) */}
+        <CategoryNavStrip
+          selectedCategory={selectedCategory}
           onSelectCategory={handleSelectCategory}
-          onAddToCart={handleAddToCart}
+          activeFilter={activeFilter}
+          onSelectFilter={(fil) => setActiveFilter(fil)}
         />
+      </Header>
+
+      {/* Main Content Sections
+          Phones (< md): app-style feed → Offers → Categories → Product rails → Trust badges
+          Tablet / Laptop (md+): full website order (DOM order) */}
+      <main className="flex-1 flex flex-col">
+        {/* Section 2: Clean Professional Hero — website only */}
+        <div className="hidden md:block">
+          <Hero
+            onShopNow={() => handleSelectCategory('fruits-veg')}
+            onSelectCategory={handleSelectCategory}
+            onAddToCart={handleAddToCart}
+          />
+        </div>
 
         {/* Section 3: Delivery Strip */}
-        <DeliveryStrip />
+        <div className="order-4 md:order-none">
+          <DeliveryStrip />
+        </div>
 
         {/* Section 4: Shop by Category */}
-        <CategoryGrid
-          onSelectCategory={handleSelectCategory}
-          selectedCategory={selectedCategory}
-        />
+        <div className="order-2 md:order-none">
+          <CategoryGrid
+            onSelectCategory={handleSelectCategory}
+            selectedCategory={selectedCategory}
+          />
+        </div>
 
         {/* Section 5: Promo Banners Carousel */}
-        <PromoCarousel
-          onApplyCoupon={(code) => {
-            setAppliedCoupon(code);
-            showToast("Coupon Applied!", `Code '${code}' is active on checkout`, 'general');
-          }}
-        />
+        <div className="order-1 md:order-none">
+          <PromoCarousel
+            onApplyCoupon={(code) => {
+              setAppliedCoupon(code);
+              showToast("Coupon Applied!", `Code '${code}' is active on checkout`, 'general');
+            }}
+          />
+        </div>
 
         {/* Section 6: Product Rows */}
-        <div id="all-products" className="divide-y divide-stone-100">
+        <div id="all-products" className="order-3 md:order-none divide-y divide-stone-100">
           <ProductSection
             sectionId="section-bestsellers"
             title="Best Sellers in 10 Minutes"
@@ -399,43 +442,51 @@ export default function App() {
           />
         </div>
 
-        {/* Section 8: How It Works */}
-        <HowItWorks />
-
-        {/* Section 9: Stats Counters */}
-        <StatsCounter />
-
-        {/* Section 10: App Download & Customer Testimonials */}
-        <AppDownloadAndTestimonials />
+        {/* Sections 8–10: marketing blocks — website only (an app doesn't need them) */}
+        <div className="hidden md:block order-5 md:order-none">
+          <HowItWorks />
+          <StatsCounter />
+          <AppDownloadAndTestimonials />
+        </div>
       </main>
 
       {/* Section 11: Footer */}
       <Footer onSelectCategory={handleSelectCategory} />
 
-      {/* Clean Docked Bottom Cart Bar for Mobile when Cart has items */}
+      {/* Phones: spacer so content never hides behind the bottom tab bar / basket pill */}
+      <div
+        aria-hidden="true"
+        className={`md:hidden bg-surface-off flex-shrink-0 ${
+          cartCount > 0
+            ? 'h-[calc(136px+env(safe-area-inset-bottom))]'
+            : 'h-[calc(64px+env(safe-area-inset-bottom))]'
+        }`}
+      />
+
+      {/* Floating "View Basket" pill for phones — sits just above the bottom tab bar */}
       <AnimatePresence>
         {cartCount > 0 && !isCartOpen && (
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
-            className="fixed bottom-0 left-0 right-0 z-40 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-xl sm:hidden"
+            className="fixed inset-x-0 bottom-[calc(68px+env(safe-area-inset-bottom))] z-40 px-3 md:hidden"
           >
             <button
               onClick={() => setIsCartOpen(true)}
-              className="w-full bg-brand-green text-white font-bold py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-between active:scale-98 transition-transform"
+              className="w-full bg-brand-green text-white font-bold py-2.5 pl-2.5 pr-4 rounded-2xl shadow-floating flex items-center justify-between active:scale-[0.98] transition-transform"
             >
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
-                  <ShoppingBag className="w-4 h-4" />
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                  <ShoppingBag className="w-[18px] h-[18px]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left leading-tight">
                   <p className="text-xs font-black">{cartCount} {cartCount === 1 ? 'ITEM' : 'ITEMS'}</p>
-                  <p className="text-[11px] text-emerald-100">₹{cartTotal}</p>
+                  <p className="text-xs text-emerald-100 font-semibold">₹{cartTotal}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs font-black">
+              <div className="flex items-center gap-1.5 text-sm font-black">
                 <span>View Basket</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
@@ -443,6 +494,14 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* App-style bottom tab bar (phones only) */}
+      <MobileBottomNav
+        activeTab={isCartOpen ? 'cart' : isLoginOpen ? 'account' : activeTab}
+        onTabChange={handleTabChange}
+        cartCount={cartCount}
+        user={user}
+      />
 
       {/* Product Detail Modal (PDP) */}
       <ProductDetailModal

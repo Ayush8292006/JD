@@ -16,7 +16,7 @@ export default function CategoryNavStrip({
   ];
 
   return (
-    <div className="sticky top-[88px] md:top-[65px] z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs py-2 sm:py-2.5 transition-all">
+    <div className="bg-white/95 backdrop-blur-md border-y border-stone-200/80 py-2 sm:py-2.5">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3">
           {/* Category Chips Scroll Row */}

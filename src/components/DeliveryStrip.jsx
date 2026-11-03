@@ -35,9 +35,10 @@ const FEATURES = [
 
 export default function DeliveryStrip() {
   return (
-    <section className="bg-surface-off py-4 sm:py-6 border-y border-stone-200/60">
+    <section className="bg-surface-off py-4 md:py-6 border-y border-stone-200/60">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
+        {/* Phones: swipeable row of trust badges · Tablet/Laptop: 4-column grid */}
+        <div className="flex md:grid md:grid-cols-4 gap-2.5 md:gap-4 lg:gap-6 overflow-x-auto no-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0 snap-x">
           {FEATURES.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -47,7 +48,7 @@ export default function DeliveryStrip() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: index * 0.08 }}
-                className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white rounded-2xl border border-stone-200/70 shadow-2xs transition-all"
+                className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-white rounded-2xl border border-stone-200/70 shadow-2xs transition-all min-w-[168px] md:min-w-0 flex-shrink-0 snap-start"
               >
                 <div
                   className={`w-8 h-8 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${item.bg}`}

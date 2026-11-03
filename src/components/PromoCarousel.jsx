@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Copy, Check, Sparkles } from 'lucide-react';
 import { PROMO_BANNERS } from '../data/products';
@@ -31,18 +31,34 @@ export default function PromoCarousel({ onApplyCoupon }) {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // Touch swipe (phones / tablets)
+  const touchStartX = useRef(null);
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsPaused(true);
+  };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) (dx < 0 ? handleNext : handlePrev)();
+    touchStartX.current = null;
+    setIsPaused(false);
+  };
+
   const banner = PROMO_BANNERS[currentIndex];
 
   return (
-    <section className="py-4 sm:py-8 bg-surface-off">
+    <section className="pt-1 pb-4 md:py-8 bg-white md:bg-surface-off">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div
-          className="relative rounded-3xl overflow-hidden shadow-card"
+          className="relative rounded-2xl md:rounded-3xl overflow-hidden shadow-card"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Active Banner Slide with Framer Motion AnimatePresence */}
-          <div className="relative min-h-[175px] sm:min-h-[220px] md:min-h-[250px] overflow-hidden">
+          <div className="relative min-h-[160px] sm:min-h-[200px] md:min-h-[250px] overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={banner.id}
@@ -111,21 +127,21 @@ export default function PromoCarousel({ onApplyCoupon }) {
           {/* Previous / Next Arrows */}
           <button
             onClick={handlePrev}
-            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-stone-800 flex items-center justify-center shadow-md backdrop-blur-sm transition-all"
+            className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-stone-800 items-center justify-center shadow-md backdrop-blur-sm transition-all"
             aria-label="Previous banner"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-stone-800 flex items-center justify-center shadow-md backdrop-blur-sm transition-all"
+            className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-stone-800 items-center justify-center shadow-md backdrop-blur-sm transition-all"
             aria-label="Next banner"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
           {/* Dots Indicator */}
-          <div className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 bg-black/25 backdrop-blur-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full z-10">
+          <div className="absolute bottom-3 right-3 md:right-auto md:left-1/2 md:-translate-x-1/2 flex items-center gap-1.5 sm:gap-2 bg-black/25 backdrop-blur-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full z-10">
             {PROMO_BANNERS.map((_, idx) => (
               <button
                 key={idx}

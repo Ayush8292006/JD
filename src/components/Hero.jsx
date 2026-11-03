@@ -252,7 +252,7 @@ export default function Hero({ onShopNow, onSelectCategory, onAddToCart }) {
               </div>
 
               {/* Product grid: compact 2x2 */}
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 py-2.5 sm:py-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 gap-2 sm:gap-3 py-2.5 sm:py-3">
                 {SHOWCASE_PRODUCTS.map((prod) => {
                   const discount = Math.round(
                     ((prod.mrp - prod.price) / prod.mrp) * 100

@@ -8,7 +8,8 @@ export default function ProductCard({
   onAdd,
   onIncrement,
   onDecrement,
-  onQuickView
+  onQuickView,
+  variant = 'rail' // 'rail' = horizontal scroller card, 'grid' = fills a grid cell
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -20,7 +21,11 @@ export default function ProductCard({
     <motion.div
       whileHover={{ y: -3 }}
       transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-      className="bg-white rounded-2xl border border-stone-200/80 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-card hover:border-stone-300 transition-all duration-200 relative group min-w-[150px] xs:min-w-[165px] sm:min-w-[195px] max-w-[215px] select-none flex-shrink-0"
+      className={`bg-white rounded-2xl border border-stone-200/80 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-2xs hover:shadow-card hover:border-stone-300 transition-all duration-200 relative group select-none ${
+        variant === 'grid'
+          ? 'w-full min-w-0 sm:w-auto sm:min-w-[195px] sm:max-w-[215px] sm:flex-shrink-0'
+          : 'w-[146px] sm:w-auto sm:min-w-[195px] max-w-[215px] flex-shrink-0 snap-start'
+      }`}
     >
       {/* Top Delivery Time Tag & Discount Pill */}
       <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
